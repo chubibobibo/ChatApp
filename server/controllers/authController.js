@@ -31,3 +31,16 @@ export const userRegister = async (req, res) => {
     .status(StatusCodes.OK)
     .json({ message: "User successfully registered", registeredUser });
 };
+
+/** Logging in users */
+export const userLogin = async (req, res) => {
+  if (!req.body) {
+    throw new ExpressError("No data received", StatusCodes.BAD_REQUEST);
+  }
+
+  const foundUser = await UserModel.findOne({ username: req.body.username });
+  if (!foundUser) {
+    throw new ExpressError("User does not exist", StatusCodes.BAD_REQUEST);
+  }
+  res.status(StatusCodes.OK).json({ message: "User successfully logged in" });
+};

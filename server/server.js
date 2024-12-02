@@ -42,14 +42,21 @@ app.use(
       httpOnly: true,
       expires: Date.now() * 1000 * 60 * 60 * 24 * 7, // 1 week validity of cookies
       maxAge: 1000 * 60 * 60 * 24 * 7,
-      secure: process.env.NODE_ENV === "development",
+      secure: process.env.NODE_ENV === "production",
     },
   })
 );
 
+app.use((req, res, next) => {
+  console.log(req.user);
+  //   console.log(req.session);
+  next();
+});
+
 /** middleware to initialize passport for incoming request */
+/** passport session attaches the user created from passportJs to the req.session */
 app.use(passport.initialize());
-app.use(passport.session()); // allows persistent sessions
+app.use(passport.session()); // allows persistent sessions creates  req.session obj.
 
 passport.use(UserModel.createStrategy()); // allows passport to use local strategy plugin implemented in UserSchema
 
@@ -62,9 +69,7 @@ app.use("/api/auth/", authRoutes);
 /**Error Handlers */
 /** Not found error handler */
 app.use("*", (req, res) => {
-  res
-    .status(StatusCodes.INTERNAL_SERVER_ERROR)
-    .json({ message: "Page not found" });
+  res.status(StatusCodes.NOT_FOUND).json({ message: "Page not found" });
 });
 
 /** Express error handling */
