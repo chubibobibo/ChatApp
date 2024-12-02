@@ -47,11 +47,11 @@ app.use(
   })
 );
 
-app.use((req, res, next) => {
-  console.log(req.user);
-  //   console.log(req.session);
-  next();
-});
+// app.use((req, res, next) => {
+//   console.log(req.user);
+//     console.log(req.session);
+//   next();
+// });
 
 /** middleware to initialize passport for incoming request */
 /** passport session attaches the user created from passportJs to the req.session */

@@ -1,13 +1,21 @@
 import express from "express";
 import passport from "passport";
 import { StatusCodes } from "http-status-codes";
-import { userRegister, userLogin } from "../controllers/authController.js";
+import {
+  userRegister,
+  userLogin,
+  userUpdate,
+} from "../controllers/authController.js";
 
-import { registerInputValidation } from "../middleware/inputValidation.js";
+import {
+  registerInputValidation,
+  loginInputValidation,
+  updateUserValidation,
+} from "../middleware/inputValidation.js";
 const router = express.Router();
 
 router.post("/register", registerInputValidation, userRegister);
-router.post("/login", (req, res, next) => {
+router.post("/login", loginInputValidation, (req, res, next) => {
   /** @authenticate passport method that authenticates using the local strategy  */
   /** @user if auth is successful this will be the user obj */
   /** @info will contain err messages */
@@ -30,9 +38,12 @@ router.post("/login", (req, res, next) => {
       if (err) {
         return next(err);
       }
-      return userLogin(req, res);
+      return userLogin(req, res); //handles further actions like sending success response
     });
   })(req, res, next);
 });
+
+/** Update user profile */
+router.patch("/updateUser/:id", updateUserValidation, userUpdate);
 
 export default router;
