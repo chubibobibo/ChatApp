@@ -68,3 +68,71 @@ export const registerInputValidation = withValidationErrors([
     .isLength({ min: 8 })
     .withMessage("Password should be at least 8 characters"),
 ]);
+
+export const loginInputValidation = withValidationErrors([
+  body("username")
+    .notEmpty()
+    .withMessage("Username cannot be empty")
+    .isLength({ min: 4, max: 15 })
+    .withMessage(
+      "Username should be at least 4 characters and not exceed 15 characters"
+    ),
+  body("password")
+    .notEmpty()
+    .withMessage("Password cannot be empty")
+    .isLength({ min: 8 })
+    .withMessage("Password should be at least 8 characters"),
+]);
+
+/** Update user input validation */
+export const updateUserValidation = withValidationErrors([
+  param("id").custom(async (id, { req }) => {
+    if (id !== req.user._id) {
+      throw new ExpressError(
+        "You are not allowed to modify this profile",
+        StatusCodes.UNAUTHORIZED
+      );
+    }
+  }),
+  body("username")
+    .notEmpty()
+    .withMessage("Username cannot be empty")
+    .isLength({ min: 4, max: 15 })
+    .withMessage(
+      "Username should be at least 4 characters and not exceed 15 characters"
+    )
+    .custom(async (username, { req }) => {
+      const foundUsername = await UserModel.findOne({ username: username });
+      if (foundUsername && foundUsername.username !== req.user.username) {
+        throw new ExpressError(
+          "Username already in use",
+          StatusCodes.BAD_REQUEST
+        );
+      }
+    }),
+  body("firstName")
+    .notEmpty()
+    .withMessage("Username cannot be empty")
+    .isLength({ min: 4, max: 15 })
+    .withMessage(
+      "firstName should be at least 4 characters and not exceed 15 characters"
+    ),
+  body("lastName")
+    .notEmpty()
+    .withMessage("Username cannot be empty")
+    .isLength({ min: 4, max: 15 })
+    .withMessage(
+      "lastName should be at least 4 characters and not exceed 15 characters"
+    ),
+  body("email")
+    .notEmpty()
+    .withMessage("Email cannot be empty")
+    .isEmail()
+    .withMessage("Email should be valid")
+    .custom(async (email, { req }) => {
+      const foundEmail = await UserModel.findOne({ email: email });
+      if (foundEmail && foundEmail.email !== req.user.email) {
+        throw new ExpressError("Email already used", StatusCodes.BAD_REQUEST);
+      }
+    }),
+]);

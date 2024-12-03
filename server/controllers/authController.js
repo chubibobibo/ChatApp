@@ -31,3 +31,69 @@ export const userRegister = async (req, res) => {
     .status(StatusCodes.OK)
     .json({ message: "User successfully registered", registeredUser });
 };
+
+/** Logging in users */
+export const userLogin = async (req, res) => {
+  if (!req.body) {
+    throw new ExpressError("No data received", StatusCodes.BAD_REQUEST);
+  }
+
+  const foundUser = await UserModel.findOne({ username: req.body.username });
+  if (!foundUser) {
+    throw new ExpressError("User does not exist", StatusCodes.BAD_REQUEST);
+  }
+  res.status(StatusCodes.OK).json({ message: "User successfully logged in" });
+};
+
+/** Update users */
+export const userUpdate = async (req, res) => {
+  const { username, firstName, lastName, email, password } = req.body;
+  const { id } = req.params;
+  // console.log(id);
+  if (!req.body) {
+    throw new ExpressError(
+      "Something went wrong updating user profile",
+      StatusCodes.BAD_REQUEST
+    );
+  }
+  const updatedUser = await UserModel.findByIdAndUpdate(
+    id,
+    {
+      username: username,
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
+    },
+    {
+      new: true,
+    }
+  );
+
+  if (!userUpdate) {
+    throw new ExpressError(
+      "Something went wrong updating user profile",
+      StatusCodes.BAD_REQUEST
+    );
+  }
+  if (password) {
+    const foundUser = await UserModel.findById(id);
+    if (!foundUser) {
+      throw new ExpressError("User does not exist", StatusCodes.NOT_FOUND);
+    }
+    await foundUser.setPassword(password);
+    await foundUser.save();
+  }
+  res
+    .status(StatusCodes.OK)
+    .json({ message: "User profile successfully updated", updatedUser });
+};
+
+/** logout user */
+export const userLogout = async (req, res, next) => {
+  req.logout(function (err) {
+    if (err) {
+      return next(err);
+    }
+  });
+  res.status(StatusCodes.OK).json({ message: "User successfully logged out" });
+};
