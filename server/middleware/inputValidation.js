@@ -86,6 +86,14 @@ export const loginInputValidation = withValidationErrors([
 
 /** Update user input validation */
 export const updateUserValidation = withValidationErrors([
+  param("id").custom(async (id, { req }) => {
+    if (id !== req.user._id) {
+      throw new ExpressError(
+        "You are not allowed to modify this profile",
+        StatusCodes.UNAUTHORIZED
+      );
+    }
+  }),
   body("username")
     .notEmpty()
     .withMessage("Username cannot be empty")

@@ -87,3 +87,13 @@ export const userUpdate = async (req, res) => {
     .status(StatusCodes.OK)
     .json({ message: "User profile successfully updated", updatedUser });
 };
+
+/** logout user */
+export const userLogout = async (req, res, next) => {
+  req.logout(function (err) {
+    if (err) {
+      return next(err);
+    }
+  });
+  res.status(StatusCodes.OK).json({ message: "User successfully logged out" });
+};

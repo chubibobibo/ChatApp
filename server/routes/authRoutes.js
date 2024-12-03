@@ -5,6 +5,7 @@ import {
   userRegister,
   userLogin,
   userUpdate,
+  userLogout,
 } from "../controllers/authController.js";
 
 import {
@@ -12,6 +13,7 @@ import {
   loginInputValidation,
   updateUserValidation,
 } from "../middleware/inputValidation.js";
+import { isLoggedIn } from "../middleware/isLoggedIn.js";
 const router = express.Router();
 
 router.post("/register", registerInputValidation, userRegister);
@@ -34,6 +36,7 @@ router.post("/login", loginInputValidation, (req, res, next) => {
     }
     // authenticated user
     /** @user once auth is successful. user is serialized and stores user's id in session (user stays logged in) */
+    /**req.login generates a session for the user to be serialized in */
     req.login(user, (err) => {
       if (err) {
         return next(err);
@@ -43,7 +46,9 @@ router.post("/login", loginInputValidation, (req, res, next) => {
   })(req, res, next);
 });
 
+/** Logout user */
+router.post("/logout", userLogout);
 /** Update user profile */
-router.patch("/updateUser/:id", updateUserValidation, userUpdate);
+router.patch("/updateUser/:id", isLoggedIn, updateUserValidation, userUpdate);
 
 export default router;
